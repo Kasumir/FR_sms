@@ -181,7 +181,7 @@ void MainWindow::on_pushButton_clicked()
     }
     cv::Mat capImage = frame(face.rect);
     Dialog d;
-    //connect(&d, SIGNAL(profile()), this, SLOT(add_std()));
+    connect(&d, SIGNAL(profile()), this, SLOT(add_std()));
     d.initialize(capImage);
     d.setModal(true);
     d.exec();

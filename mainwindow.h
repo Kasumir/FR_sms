@@ -41,17 +41,20 @@ private:
     vas::fd::Face face;
     vas::fd::FaceDetector::Builder fd_builder;
     vas::fr::FaceRecognizer::Builder fr_builder;
-    std::vector<std::string> v_phone_num, v_image_path;
-    std::vector<bool> issent;
+    std::vector<std::string> v_phone_num, v_image_path, v_date;
+    //std::vector<bool> issent;
     int width, height;
 
     char * BUILDER_PATH;
 
     void startDisplay();
+    std::string getDate();
 private slots:
     void mainProcess();
     void on_pushButton_clicked();
     void add_std();
+    void on_admin_btn_clicked();
+    void reset_stdlist();
 };
 
 #endif // MAINWINDOW_H

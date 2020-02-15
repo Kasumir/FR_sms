@@ -19,7 +19,7 @@
      <number>9</number>
     </property>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="100,1">
       <item>
        <widget class="QLabel" name="label">
         <property name="minimumSize">
@@ -34,11 +34,25 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>Capture</string>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0">
+        <property name="spacing">
+         <number>6</number>
         </property>
-       </widget>
+        <item>
+         <widget class="QPushButton" name="admin_btn">
+          <property name="text">
+           <string>admin</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Capture</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>

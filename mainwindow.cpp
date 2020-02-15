@@ -6,6 +6,8 @@
 #include "dialog.h"
 #include <cstdlib>
 #include <imageutil.h>
+#include <admin_dialog.h>
+#include <time.h>
 
 //Setup  MainWindow
 MainWindow::MainWindow(QWidget *parent) :
@@ -23,20 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     fd_builder.max_frame_latency = 30;
     fd_builder.redetection_period = 10;
 
-    fd = fd_builder.Build("/home/intel01/intel_vas/vas/lib/intel64");
-    fr = fr_builder.Build("/home/intel01/intel_vas/vas/lib/intel64");
-
-    db db_;
-    db_.connect_db();
-    v_image_path = db_.get_image_path();
-    v_phone_num = db_.get_phone_num();
-
-    for(int i = 0; i < v_phone_num.size(); i++)
-        std::cout << v_phone_num[i] << std::endl;
-    for(int i = 0; i < v_phone_num.size(); i++)
-        issent.push_back(0);
-    for(int i = 0; i < v_image_path.size(); i++)
-        register_std(v_image_path[i].c_str(), i);
+    reset_stdlist();
 
     cv::VideoCapture capture(0);
     cap = capture;
@@ -54,9 +43,47 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 
+
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+string MainWindow::getDate(){
+    struct tm* datetime;
+    time_t t;
+    t = time(NULL);
+    datetime = localtime(&t);
+    char str[100];
+    sprintf(str, "%d-%02d-%02d", datetime->tm_year + 1900, datetime->tm_mon + 1, datetime->tm_mday);
+    std::string strr = str;
+
+    return strr;
+}
+
+void MainWindow::reset_stdlist(){
+    fd = fd_builder.Build("/home/intel01/intel_vas/vas/lib/intel64");
+    fr = fr_builder.Build("/home/intel01/intel_vas/vas/lib/intel64");
+
+    db db_;
+    db_.connect_db();
+    v_image_path.clear();
+    v_phone_num.clear();
+    v_date.clear();
+    auto p = db_.getData(-1, -1);
+
+
+
+    for(int i = 0; i < p.size(); i++){
+        v_image_path.push_back(p[i][3]);
+        v_phone_num.push_back(p[i][2]);
+        v_date.push_back(p[i][4]);
+    }
+
+    for(int i = 0; i < v_phone_num.size(); i++)
+        std::cout << v_phone_num[i] << std::endl;
+    for(int i = 0; i < v_image_path.size(); i++)
+        register_std(v_image_path[i].c_str(), i);
 }
 
 void MainWindow::register_std(const char * image_path, int ID){
@@ -80,13 +107,10 @@ void MainWindow::register_std(const char * image_path, int ID){
 
 void MainWindow::mainProcess()
 {
-    //printf("mainprocess()\n");
     if(width != ui->label->width()){
-        //cap.set(cv::CAP_PROP_FRAME_WIDTH, ui->label->width());
         width = ui->label->width();
     }
     if(height != ui->label->height()){
-        //cap.set(cv::CAP_PROP_FRAME_HEIGHT, ui->label->height());
         height = ui->label->height();
     }
     cv::Mat m;
@@ -115,11 +139,18 @@ void MainWindow::mainProcess()
 
                 cv::rectangle(frame, face.rect, cv::Scalar(0, 255, 0), 2);
                 cv::putText(frame, text, cv::Point2i(face.rect.x, face.rect.y - 3), 0, 0.5, cv::Scalar(0, 255, 0, 255));
+
+
                 //send message
-                if(issent[fr_result.person_id] == 0){
+                if(v_date[fr_result.person_id] != getDate()){
+                    //date
+                    db db_;
+                    db_.connect_db();
+                    db_.updateData(fr_result.person_id, 4, getDate());
                     std::cout << "detected user ID : " << fr_result.person_id << std::endl;
                     //sendmessage("rhfmrh1230", "qu9760cs", v_phone_num[fr_result.person_id].c_str(), "01041955413", "check!");
-                    issent[fr_result.person_id] = 1;
+                    cout << "sendmessage!!!!!!!" << endl;
+                    v_date[fr_result.person_id] = getDate();
                 }
             }
             else{
@@ -166,10 +197,7 @@ int MainWindow::sendmessage(char * ID, char * PASSWD, const char * RECEIVER, cha
 //capture button clicked
 void MainWindow::on_pushButton_clicked()
 {
-    printf("\n start Button\n");
     QString name, phonenum;
-    //name = ui->textedit_name->toPlainText();
-    //phonenum = ui->textedit_phonenum->toPlainText();
     timer30ms->stop();  
     if(!(0 <= face.rect.x && 0 <= face.rect.width && face.rect.x + face.rect.width <= frame.cols && 0 <= face.rect.y && 0 <= face.rect.height && face.rect.y + face.rect.height <= frame.rows)){
         timer30ms->start(1);
@@ -186,18 +214,25 @@ void MainWindow::on_pushButton_clicked()
     d.setModal(true);
     d.exec();
 
-
-    //printf("what???\n");
     timer30ms->start(1);
 }
 
 void MainWindow::add_std(){
+    cout << "asdfasdfasdfasdfasdfasdfsadf" << endl;
     timer30ms->stop();
     db db_;
     db_.connect_db();
-    v_image_path = db_.get_image_path();
-    v_phone_num = db_.get_phone_num();
+    v_image_path.clear();
+    v_phone_num.clear();
+    v_date.clear();
 
+    auto p = db_.getData(-1, -1);
+
+    for(int i = 0; i < p.size(); i++){
+        v_image_path.push_back(p[i][3]);
+        v_phone_num.push_back(p[i][2]);
+        v_date.push_back(p[i][4]);
+    }
 
     cv::Mat src = imread(v_image_path[v_image_path.size() - 1], cv::IMREAD_COLOR);
     auto faces = fd->Detect(src, false);
@@ -210,12 +245,22 @@ void MainWindow::add_std(){
 
     vas::fr::DetectedFace input_face(faces[0].left_eye, faces[0].right_eye, 0);
     auto register_feature = fr->ExtractFeature(src, input_face);
-
     auto register_result = fr->Register(register_feature.get(), std::atoi(db_.size().c_str()) - 1);
     if(register_result.first != vas::fr::RegistrationStatus::SUCCESS){
         std::cout << "Registration fails: " << int32_t(register_result.first) << std::endl;
         timer30ms->start(1);
         return;
     }
+
     timer30ms->start(1);
+    return;
+
+}
+
+void MainWindow::on_admin_btn_clicked()
+{
+    admin_dialog ad;
+    connect(&ad, SIGNAL(deleted()), this, SLOT(reset_stdlist()));
+    ad.setModal(true);
+    ad.exec();
 }

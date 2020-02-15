@@ -1,4 +1,5 @@
 #include <database.h>
+#include <cstdlib>
 
 db::db(){
     SERVER = "localhost";
@@ -47,57 +48,6 @@ void db::close_db(){
     mysql_close(conn);
 }
 
-std::vector<std::string> db::get_image_path(){
-    std::vector<std::string> v;
-    mysql_query(conn, "use fd_user");
-    mysql_query(conn, "SELECT image_path FROM student_info ORDER BY std_num");
-        res = mysql_store_result(conn);
-
-        fields = mysql_num_fields(res);
-        while((row = mysql_fetch_row(res))!= NULL){
-            for(int i = 0; i < fields; i++)
-                v.push_back(row[i]);
-        }
-    return v;
-}
-
-std::string db::get_image_path(std::string str){
-    std::string s = "SELECT image_path FROM student_info WHERE std_num = " + str;
-    mysql_query(conn, "use fd_user");
-    mysql_query(conn, s.c_str());
-
-    res = mysql_store_result(conn);
-    fields = mysql_num_fields(res);
-    row = mysql_fetch_row(res);
-    s = row[0];
-    return s;
-}
-
-std::vector<std::string> db::get_phone_num(){
-    std::vector<std::string> v;
-    mysql_query(conn, "use fd_user");
-    mysql_query(conn, "SELECT phone_num FROM student_info ORDER BY std_num");
-        res = mysql_store_result(conn);
-
-        fields = mysql_num_fields(res);
-        while((row = mysql_fetch_row(res))!= NULL){
-            for(int i = 0; i < fields; i++)
-                v.push_back(row[i]);
-        }
-    return v;
-}
-
-std::string db::get_phone_num(std::string str){
-    std::string s = "SELECT phone_num FROM student_info WHERE std_num = " + str;
-    mysql_query(conn, "use fd_user");
-    mysql_query(conn, s.c_str());
-
-    res = mysql_store_result(conn);
-    row = mysql_fetch_row(res);
-    s = row[0];
-    return s;
-}
-
 void db::create_profile(std::string name, std::string phonenum, std::string image_path){
     std::string query = "INSERT INTO student_info VALUES(" + db::size() + ", \"" + name + "\", \"" + phonenum + "\", \"" + image_path + "\", NULL)";
 
@@ -113,3 +63,117 @@ std::string db::size(){
     std::string str = row[0];
     return str;
 }
+
+vector<vector<string>> db::getData(int n, int m){
+    /* select column[m]      or      *
+     * from student_info
+     * where std_num = n     or      x
+     * order by std_num
+     */
+    unsigned long b = std::atoi(db::size().c_str());
+    vector<vector<string>> data(b);
+
+
+    string query = "";
+    string column[5] = {"std_num", "name", "phone_num", "image_path", "IFNULL(date, \"NULL\")"};
+
+    if(m > 4 || m < -1 || n < -1){
+        return data;
+    }
+    if(m >= 0){
+        query += ("SELECT " + column[m] + " FROM student_info ");
+    }
+    else{
+        query += "SELECT std_num, name, phone_num, image_path, IFNULL(date, \"NULL\") FROM student_info ";
+    }
+
+    if(n >= 0){
+        query += ("WHERE std_num = " + std::to_string(n) + " ");
+    }
+
+    query += "ORDER BY std_num";
+
+
+
+    mysql_query(conn, "use fd_user");
+    mysql_query(conn, query.c_str());
+    res = mysql_store_result(conn);
+
+    fields = mysql_num_fields(res);
+    int j = 0;
+    while((row = mysql_fetch_row(res))!= NULL){
+        for(int i = 0; i < fields; i++){
+            data[j].push_back(row[i]);
+        }
+        j++;
+    }
+
+    cout << query << endl;
+    return data;
+}
+
+void db::delData(int n){
+    string del_query = "";
+    string sort_query = "";
+    mysql_query(conn, "use fd_user");
+
+    del_query += ("DELETE FROM student_info WHERE std_num = " + std::to_string(n));
+    mysql_query(conn, del_query.c_str());
+
+    sort_query += ("UPDATE student_info SET std_num = std_num - 1 WHERE std_num > " + std::to_string(n));
+    mysql_query(conn, sort_query.c_str());
+}
+
+void db::updateData(int n, int m, string data){
+    /* UPDATE student_info
+     * SET column[m] = data
+     * WHERE std_num = n
+     */
+    string column[5] = {"std_num", "name", "phone_num", "image_path", "date"};
+    string query = "UPDATE student_info SET " + column[m] + " = \"" + data + "\" WHERE std_num = " + to_string(n);
+    mysql_query(conn, "use fd_user");
+    mysql_query(conn, query.c_str());
+
+
+    cout << query << endl;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

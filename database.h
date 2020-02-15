@@ -9,6 +9,8 @@
 
 #ifndef DATABASE_H
 #define DATABASE_H
+
+using namespace std;
 class db
 {
 private:
@@ -26,11 +28,14 @@ public:
     ~db();
     int connect_db();
     void close_db();
-    std::vector<std::string> get_image_path();
-    std::string get_image_path(std::string str);
-    std::vector<std::string> get_phone_num();
-    std::string get_phone_num(std::string str);
+
+    //goodgodd
     std::string size();
+    vector<vector<string>> getData(int n, int m);
+    void delData(int n);
+    void updateData(int n, int m, string data);
+
+
     void create_profile(std::string name, std::string phonenum, std::string image_path);
 
 };

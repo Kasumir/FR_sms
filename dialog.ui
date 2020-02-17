@@ -7,23 +7,23 @@
     <x>0</x>
     <y>0</y>
     <width>260</width>
-    <height>400</height>
+    <height>430</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>260</width>
-    <height>400</height>
+    <height>430</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>260</width>
-    <height>400</height>
+    <height>430</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>MaitAICapture</string>
   </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
@@ -44,7 +44,7 @@
      <x>10</x>
      <y>290</y>
      <width>241</width>
-     <height>101</height>
+     <height>136</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -77,6 +77,16 @@
       </property>
       <property name="placeholderText">
        <string>phone number</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="checkBox">
+      <property name="text">
+       <string>send text message</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
       </property>
      </widget>
     </item>

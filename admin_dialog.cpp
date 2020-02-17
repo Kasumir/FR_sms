@@ -24,11 +24,11 @@ void admin_dialog::add_rows(){
     ckbox_list.clear();
 
     //set table size
-    ui->tableWidget->setColumnCount(5);
+    ui->tableWidget->setColumnCount(6);
     ui->tableWidget->setRowCount(std::atoi(db_.size().c_str()));
     //set column header
     QStringList list;
-    ui->tableWidget->setHorizontalHeaderLabels(list << "check" << "pic" << "name" << "phonenum" << "date" << "delete");
+    ui->tableWidget->setHorizontalHeaderLabels(list << "check" << "pic" << "name" << "phonenum" << "date" << "Y/N");
 
     //add rows
     auto p = db_.getData(-1, -1);
@@ -54,6 +54,12 @@ void admin_dialog::add_rows(){
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(p[i][1].c_str()));
         ui->tableWidget->setItem(i, 3, new QTableWidgetItem(p[i][2].c_str()));
         ui->tableWidget->setItem(i, 4, new QTableWidgetItem(p[i][4].c_str()));
+        //set Y/N
+        if(std::atoi(p[i][5].c_str()) > 0){
+            ui->tableWidget->setItem(i, 5, new QTableWidgetItem("Y"));
+        }
+        else
+            ui->tableWidget->setItem(i, 5, new QTableWidgetItem("N"));
     }
 
     //set table cell size

@@ -48,8 +48,8 @@ void db::close_db(){
     mysql_close(conn);
 }
 
-void db::create_profile(std::string name, std::string phonenum, std::string image_path){
-    std::string query = "INSERT INTO student_info VALUES(" + db::size() + ", \"" + name + "\", \"" + phonenum + "\", \"" + image_path + "\", NULL)";
+void db::create_profile(std::string name, std::string phonenum, std::string image_path, std::string YN){
+    std::string query = "INSERT INTO student_info VALUES(" + db::size() + ", \"" + name + "\", \"" + phonenum + "\", \"" + image_path + "\", NULL" + ",\"" + YN + "\")";
 
     mysql_query(conn, "use fd_user");
     mysql_query(conn, query.c_str());
@@ -75,16 +75,16 @@ vector<vector<string>> db::getData(int n, int m){
 
 
     string query = "";
-    string column[5] = {"std_num", "name", "phone_num", "image_path", "IFNULL(date, \"NULL\")"};
+    string column[6] = {"std_num", "name", "phone_num", "image_path", "IFNULL(date, \"NULL\")", "YN"};
 
-    if(m > 4 || m < -1 || n < -1){
+    if(m > 5 || m < -1 || n < -1){
         return data;
     }
     if(m >= 0){
         query += ("SELECT " + column[m] + " FROM student_info ");
     }
     else{
-        query += "SELECT std_num, name, phone_num, image_path, IFNULL(date, \"NULL\") FROM student_info ";
+        query += "SELECT std_num, name, phone_num, image_path, IFNULL(date, \"NULL\"), YN FROM student_info ";
     }
 
     if(n >= 0){

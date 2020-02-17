@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>719</width>
+    <width>559</width>
     <height>532</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>MaitAIControl</string>
   </property>
   <widget class="QTableWidget" name="tableWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>701</width>
+     <width>541</width>
      <height>481</height>
     </rect>
    </property>
@@ -28,7 +28,7 @@
     <rect>
      <x>10</x>
      <y>490</y>
-     <width>701</width>
+     <width>541</width>
      <height>41</height>
     </rect>
    </property>

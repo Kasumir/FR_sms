@@ -48,7 +48,10 @@ void Dialog::on_pushButton_clicked()
 
     db db_;
     db_.connect_db();
-    db_.create_profile(ui->te_name->toPlainText().toStdString(), ui->te_phone->toPlainText().toStdString(), "./std_image/" + ui->te_name->toPlainText().toStdString() + ".jpg");
+    db_.create_profile(ui->te_name->toPlainText().toStdString(),
+                       ui->te_phone->toPlainText().toStdString(),
+                       "./std_image/" + ui->te_name->toPlainText().toStdString() + ".jpg",
+                       std::to_string(ui->checkBox->checkState()));
 
     emit profile();
 

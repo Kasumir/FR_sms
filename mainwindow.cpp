@@ -8,7 +8,9 @@
 #include <imageutil.h>
 #include <admin_dialog.h>
 #include <time.h>
+#include <opencv2/imgcodecs/imgcodecs.hpp>
 
+using namespace cv;
 //Setup  MainWindow
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -35,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent) :
     }else
         printf("cam opened\n\n");
     //
+    logo = cv::imread("./src/logo.jpg");
+    logo_gray = cv::imread("./src/logo.jpg", IMREAD_GRAYSCALE);
+    cv::resize(logo, logo, cv::Size(300, 100), 0, 0);
+    cv::resize(logo_gray, logo_gray, cv::Size(300, 100), 0, 0);
 
     ui->setupUi(this);
     timer30ms = new QTimer(this);
@@ -70,6 +76,7 @@ void MainWindow::reset_stdlist(){
     v_image_path.clear();
     v_phone_num.clear();
     v_date.clear();
+    v_YN.clear();
     auto p = db_.getData(-1, -1);
 
 
@@ -78,6 +85,7 @@ void MainWindow::reset_stdlist(){
         v_image_path.push_back(p[i][3]);
         v_phone_num.push_back(p[i][2]);
         v_date.push_back(p[i][4]);
+        v_YN.push_back(p[i][5]);
     }
 
     for(int i = 0; i < v_phone_num.size(); i++)
@@ -116,6 +124,14 @@ void MainWindow::mainProcess()
     cv::Mat m;
     cap >> m;
     cv::resize(m, frame, cv::Size(ui->label->width(), ui->label->height()), 0, 0);
+    cv::resize(m, display, cv::Size(ui->label->width(), ui->label->height()), 0, 0);
+
+
+
+    cv::Mat imageROI(display, cv::Rect(frame.cols - logo.cols, frame.rows- logo.rows, logo.cols, logo.rows));
+    cv::Mat mask(155 - logo_gray);
+    logo.copyTo(imageROI, mask);
+
     auto faces = fd->Detect(frame, true);
 
     if(faces.size() > 0){
@@ -137,12 +153,12 @@ void MainWindow::mainProcess()
             if (fr_result.status == vas::fr::RecognitionStatus::SUCCESS){
                 std::snprintf(text, sizeof(text), "Matched(%.3f) %d", fr_result.similarity_score, fr_result.person_id);
 
-                cv::rectangle(frame, face.rect, cv::Scalar(0, 255, 0), 2);
-                cv::putText(frame, text, cv::Point2i(face.rect.x, face.rect.y - 3), 0, 0.5, cv::Scalar(0, 255, 0, 255));
+                cv::rectangle(display, face.rect, cv::Scalar(0, 255, 0), 2);
+                cv::putText(display, text, cv::Point2i(face.rect.x, face.rect.y - 3), 0, 0.5, cv::Scalar(0, 255, 0, 255));
 
 
                 //send message
-                if(v_date[fr_result.person_id] != getDate()){
+                if(v_date[fr_result.person_id] != getDate() && std::atoi(v_YN[fr_result.person_id].c_str()) > 0){
                     //date
                     db db_;
                     db_.connect_db();
@@ -156,14 +172,14 @@ void MainWindow::mainProcess()
             else{
                 std::snprintf(text, sizeof(text), "Unknown(%.3f)", fr_result.similarity_score);
 
-                cv::rectangle(frame, face.rect, cv::Scalar(255, 0, 0), 2);
-                cv::putText(frame, text, cv::Point2i(face.rect.x, face.rect.y - 3), 0, 0.5, cv::Scalar(255, 0, 0, 255));
+                cv::rectangle(display, face.rect, cv::Scalar(255, 0, 0), 2);
+                cv::putText(display, text, cv::Point2i(face.rect.x, face.rect.y - 3), 0, 0.5, cv::Scalar(255, 0, 0, 255));
             }
         }
     }
-    if (!frame.empty())
+    if (!display.empty())
     {
-        ui->label->setPixmap(imageutil::cvMatToQPixmap(frame));
+        ui->label->setPixmap(imageutil::cvMatToQPixmap(display));
     }
     else{
         printf("Fail Image\n");
@@ -225,6 +241,7 @@ void MainWindow::add_std(){
     v_image_path.clear();
     v_phone_num.clear();
     v_date.clear();
+    v_YN.clear();
 
     auto p = db_.getData(-1, -1);
 
@@ -232,6 +249,7 @@ void MainWindow::add_std(){
         v_image_path.push_back(p[i][3]);
         v_phone_num.push_back(p[i][2]);
         v_date.push_back(p[i][4]);
+        v_YN.push_back(p[i][5]);
     }
 
     cv::Mat src = imread(v_image_path[v_image_path.size() - 1], cv::IMREAD_COLOR);

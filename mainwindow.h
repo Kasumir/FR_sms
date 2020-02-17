@@ -37,13 +37,16 @@ private:
     QTimer *timer30ms;
     cv::VideoCapture cap;
     cv::Mat frame;
+    cv::Mat display;
+    cv::Mat logo;
+    cv::Mat logo_gray;
 
     vas::fd::Face face;
     vas::fd::FaceDetector::Builder fd_builder;
     vas::fr::FaceRecognizer::Builder fr_builder;
-    std::vector<std::string> v_phone_num, v_image_path, v_date;
+    std::vector<std::string> v_phone_num, v_image_path, v_date, v_YN;
     //std::vector<bool> issent;
-    int width, height;
+    int width, height, logo_width, logo_height;
 
     char * BUILDER_PATH;
 

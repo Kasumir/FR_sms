@@ -34,10 +34,17 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0">
+       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
         <property name="spacing">
          <number>6</number>
         </property>
+        <item>
+         <widget class="QPushButton" name="account_btn">
+          <property name="text">
+           <string>account</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QPushButton" name="admin_btn">
           <property name="text">

@@ -1,14 +1,17 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "error_dialog.h"
 #include <QThread>
 #include <database.h>
 #include <QString>
 #include "dialog.h"
+#include "account_dialog.h"
 #include <cstdlib>
 #include <imageutil.h>
 #include <admin_dialog.h>
 #include <time.h>
 #include <opencv2/imgcodecs/imgcodecs.hpp>
+#include <fstream>
 
 using namespace cv;
 //Setup  MainWindow
@@ -160,13 +163,16 @@ void MainWindow::mainProcess()
                 //send message
                 if(v_date[fr_result.person_id] != getDate() && std::atoi(v_YN[fr_result.person_id].c_str()) > 0){
                     //date
-                    db db_;
-                    db_.connect_db();
-                    db_.updateData(fr_result.person_id, 4, getDate());
                     std::cout << "detected user ID : " << fr_result.person_id << std::endl;
-                    //sendmessage("rhfmrh1230", "qu9760cs", v_phone_num[fr_result.person_id].c_str(), "01041955413", "check!");
-                    cout << "sendmessage!!!!!!!" << endl;
-                    v_date[fr_result.person_id] = getDate();
+                    auto data = getAccountData();
+
+                    if(data[0] != "default" && sendmessage(data[0].c_str(), data[1].c_str(), v_phone_num[fr_result.person_id].c_str(), data[2].c_str(), data[3].c_str())){
+                        db db_;
+                        db_.connect_db();
+                        db_.updateData(fr_result.person_id, 4, getDate());
+                        //cout << "sendmessage!!!!!!!" << endl;
+                        v_date[fr_result.person_id] = getDate();
+                    }
                 }
             }
             else{
@@ -185,8 +191,21 @@ void MainWindow::mainProcess()
         printf("Fail Image\n");
     }
 }
+std::vector<std::string> MainWindow::getAccountData(){
+    char inputString[100];
+    vector<string> v(4);
 
-int MainWindow::sendmessage(char * ID, char * PASSWD, const char * RECEIVER, char * SENDER, char * MSG){
+    ifstream inFile("account.txt");
+    for(int i = 0; i < 4 && !inFile.eof(); i++){
+        inFile.getline(inputString, MAX_SIZE);
+        v[i] = inputString;
+    }
+    inFile.close();
+
+    return v;
+}
+
+int MainWindow::sendmessage(const char * ID, const char * PASSWD, const char * RECEIVER, const char * SENDER, const char * MSG){
     coolsms::sms s;
     s.appversion("Example/1.0");
     s.charset("utf8");
@@ -196,16 +215,37 @@ int MainWindow::sendmessage(char * ID, char * PASSWD, const char * RECEIVER, cha
     // 서버에 연결합니다.
     if (!s.connect()) {
         std::cerr << "cannot connect to server" << std::endl;
-        return 1;
+        return 0;
     }
     std::cout << s.send() << " success." << std::endl;
+    if(s.send() == 0){
+        auto v = getAccountData();
+        ofstream outFile("account.txt");
+        outFile.clear();
+        for(int i = 0; i < 3; i++){
+            outFile << "default" << endl;
+        }
+        outFile << v[3].c_str() << endl;
+        outFile.close();
+        s.disconnect();
+        s.printr();
+        s.empty();
+
+        error_dialog er;
+        er.setText("Failed to send message. Check your account infomation.");
+        er.setModal(true);
+        er.exec();
+        return 0;
+    }
     s.disconnect();
     if (s.errordetected()) {
         std::cout << "Error: " << s.lasterrorstr() << std::endl;
+
+        return 0;
     }
     s.printr();
     s.empty();
-    return 0;
+    return 1;
 }
 
 
@@ -234,7 +274,6 @@ void MainWindow::on_pushButton_clicked()
 }
 
 void MainWindow::add_std(){
-    cout << "asdfasdfasdfasdfasdfasdfsadf" << endl;
     timer30ms->stop();
     db db_;
     db_.connect_db();
@@ -281,4 +320,13 @@ void MainWindow::on_admin_btn_clicked()
     connect(&ad, SIGNAL(deleted()), this, SLOT(reset_stdlist()));
     ad.setModal(true);
     ad.exec();
+}
+
+void MainWindow::on_account_btn_clicked()
+{
+    timer30ms->stop();
+    account_dialog ac;
+    ac.setModal(true);
+    ac.exec();
+    timer30ms->start(1);
 }

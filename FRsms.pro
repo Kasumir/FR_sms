@@ -40,7 +40,8 @@ SOURCES += \
     sms/token.cpp \
     sms/csmd5.c \
     imageutil.cpp \
-    admin_dialog.cpp
+    admin_dialog.cpp \
+    account_dialog.cpp
 
 
 HEADERS += \
@@ -58,7 +59,8 @@ HEADERS += \
     sms/tcpconn.hpp \
     sms/token.hpp \
     imageutil.h \
-    admin_dialog.h
+    admin_dialog.h \
+    account_dialog.h
 
 
 FORMS += \
@@ -66,7 +68,8 @@ FORMS += \
     dialog.ui \
     error_dialog.ui \
     dialog.ui \
-    admin_dialog.ui
+    admin_dialog.ui \
+    account_dialog.ui
 
 
 INCLUDEPATH += /opt/intel/openvino/opencv/include

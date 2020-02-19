@@ -28,7 +28,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void register_std(const char * image_path, int ID);
-    int sendmessage(char * ID, char * PASSWD, const char * RECEIVER, char * SENDER, char * MSG);
+    int sendmessage(const char * ID, const char * PASSWD, const char * RECEIVER, const char * SENDER, const char * MSG);
     std::unique_ptr<vas::fd::FaceDetector> fd;
     std::unique_ptr<vas::fr::FaceRecognizer> fr;
 
@@ -45,6 +45,7 @@ private:
     vas::fd::FaceDetector::Builder fd_builder;
     vas::fr::FaceRecognizer::Builder fr_builder;
     std::vector<std::string> v_phone_num, v_image_path, v_date, v_YN;
+
     //std::vector<bool> issent;
     int width, height, logo_width, logo_height;
 
@@ -52,12 +53,14 @@ private:
 
     void startDisplay();
     std::string getDate();
+    std::vector<std::string> getAccountData();
 private slots:
     void mainProcess();
     void on_pushButton_clicked();
     void add_std();
     void on_admin_btn_clicked();
     void reset_stdlist();
+    void on_account_btn_clicked();
 };
 
 #endif // MAINWINDOW_H

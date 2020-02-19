@@ -5,7 +5,7 @@ db::db(){
     SERVER = "localhost";
     USER = "root";
     PASSWORD = "intel1234";
-    DATABASE = "fd_user";
+    DATABASE = "mysql";
     conn = NULL;
     res = NULL;
     row = NULL;
@@ -33,13 +33,17 @@ int db::connect_db(){
         std::cout << "Mysql Initialization Failed";
         return -1;
     }
-    mysql_real_connect(conn, SERVER, USER, PASSWORD, DATABASE, NULL, NULL, 0);
+
+    mysql_real_connect(conn, SERVER, USER, PASSWORD, NULL, NULL, NULL, 0);
     if(conn)
         ;
     else{
         std::cout << "Connection Failed\n";
         return -1;
     }
+    mysql_query(conn, "CREATE DATABASE fd_user default CHARACTER SET UTF8;");
+    mysql_query(conn, "use fd_user");
+    mysql_query(conn, "CREATE TABLE student_info(std_num INT PRIMARY KEY,name VARCHAR(20) NOT NULL,phone_num VARCHAR(20) NOT NULL,image_path VARCHAR(100) NOT NULL, date DATE,YN VARCHAR(5) NOT NULL)");
     return 0;
 }
 

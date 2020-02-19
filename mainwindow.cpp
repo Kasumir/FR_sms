@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     //initialize face_detector//
-    BUILDER_PATH = "/home/intel01/intel_vas/vas/lib/intel64";
+    BUILDER_PATH = "./vas/lib/intel64";
 
     fd_builder.backend_type = static_cast<vas::BackendType>(0);
     fr_builder.backend_type = static_cast<vas::BackendType>(0);
@@ -68,8 +68,8 @@ string MainWindow::getDate(){
 }
 
 void MainWindow::reset_stdlist(){
-    fd = fd_builder.Build("/home/intel01/intel_vas/vas/lib/intel64");
-    fr = fr_builder.Build("/home/intel01/intel_vas/vas/lib/intel64");
+    fd = fd_builder.Build(BUILDER_PATH);
+    fr = fr_builder.Build(BUILDER_PATH);
 
     db db_;
     db_.connect_db();
